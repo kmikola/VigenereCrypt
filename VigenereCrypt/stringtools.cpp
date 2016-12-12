@@ -6,13 +6,13 @@
 
 namespace Docler {
 	namespace Tools {
+
 		std::string StringTools::toUppercase(const std::string &str) {
 			std::string upperstr = std::string(str);
-			std::transform(upperstr.begin(), upperstr.end(), upperstr.begin(), [](unsigned char c) { return std::toupper(c); });
+			std::transform(upperstr.begin(), upperstr.end(), upperstr.begin(), ::toupper);
 			return upperstr;
 		}
 
-		//
 		std::string StringTools::eliminateSpecialChars(const std::string &str) {
 			std::string eliminated = std::string();
 			for (const unsigned char &c : str) {

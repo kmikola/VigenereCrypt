@@ -1,12 +1,11 @@
-// VigenereCrypt.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
+#include "StringTools.hpp"
+#include "VigenerFactory.hpp"
+
+#include <Windows.h>
 #include <iostream>
 #include <sstream>
-#include "StringTools.hpp"
-#include <Windows.h>
-#include "Vigenere.hpp"
+#include <ctime>
 
 using namespace Docler::Tools;
 
@@ -23,52 +22,35 @@ static void printwelcome() {
 	std::cout << "This program needs to be set \"Code Page 852\"." << std::endl;
 }
 
-static std::string getMessage() {
-	std::cout << "Write your public message:" << std::endl;
-	std::string message;
-	std::getline(std::cin, message);
-	if (message.empty()) {
-		std::cerr << "Message can not be empty." << std::endl;
-		exit(EXIT_MESSAGE_EMPTY);
-	}
-	else if (message.length() > 255) {
-		std::cerr << "Message can not be larger than 255 characters." << std::endl;
-		exit(EXIT_MESSAGE_TOO_LONG);
-	}
-	return message;
-}
-
-static std::string getKey() {
-	std::cout << "Type a key to encrypt:" << std::endl;
-	std::string key;
-	std::getline(std::cin, key);
-	if (key.empty()) {
-		std::cerr << "Key can not be empty." << std::endl;
+static std::string getText(const std::string &nameOfvariable, unsigned int maxLength) {
+	std::cout << "Type " << nameOfvariable << ":" << std::endl;
+	std::string text;
+	std::getline(std::cin, text);
+	if (text.empty()) {
+		std::cerr << "Text can not be empty." << std::endl;
 		exit(EXIT_KEY_EMPTY);
-	}
-	else if (key.length() > 5) {
-		std::cerr << "Key can not be larger than 5 characters." << std::endl;
+	} else if (text.length() > maxLength) {
+		std::cerr << "Text can not be larger than " << maxLength << " characters." << std::endl;
 		exit(EXIT_KEY_TOO_LONG);
 	}
-	return key;
+	return text;
 }
 
-int main()
-{
+int main(){
 	printwelcome();
-	std::string message = getMessage();
+	std::string message = getText("public message", 255);
 	std::string withoutHunChars = StringTools::eliminateSpecialChars(message);
 	std::string uppercase = StringTools::toUppercase(withoutHunChars);
 	std::cout << "Your message is prepared to encrypt:" << std::endl;
 	std::cout << uppercase << std::endl;
-	std::string key = getKey();
+	std::string key = getText("key", 5);
 	std::string keyUppercase = StringTools::toUppercase(key);
-	Vigenere vigenere = Vigenere("vtabla.dat", uppercase, keyUppercase);
+	VigenereEncryptor *encryptor = VigenerFactory::createInstance("vtabla.dat", uppercase, keyUppercase);
 	std::cout << "Your key is prepared to encrypt:" << std::endl;
-	std::cout << vigenere.getKeySentence() << std::endl;
+	std::cout << encryptor->getKeySentence() << std::endl;
 	std::cout << "Your encripted message:" << std::endl;
-	std::cout << vigenere.getEncryptedMessage() << std::endl;
-
+	std::cout << encryptor->encrypt() << std::endl;
+	delete encryptor;
 	std::cout << "Press any key to exit." << std::endl;
 	std::getchar();
 	return EXIT_WITHOUT_ERROR;
